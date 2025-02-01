@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #007BFF;
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.1);
+        }
+        .tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .image-container:hover .tooltip {
+            opacity: 1;
+        }
+        #weather {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff;  /* Background color for working area */
+            border-radius: 5px;
+            border: 2px solid #007BFF;  /* Blue border around the working area */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Weather App</h2>
+    
+    <div class="image-container">
+        <img src="image/john.jpg" alt="Yohannes Alemayehu">
+        <div class="tooltip">Yohannes Alemayehu</div>
+    </div>
+
+    <input type="text" id="city" placeholder="Enter city name">
+    <button onclick="getWeather()">Get Weather</button>
+    
+    <div id="weather"></div>
+
+    <script>
+        const apiKey = "71c75dffaefcef3f68a821e18a9f20d9"; 
+
+        async function getWeather() {
+            const city = document.getElementById("city").value;
+            if (!city) {
+                alert("Please enter a city name.");
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.cod !== 200) {
+                    document.getElementById("weather").innerHTML = `<p>${data.message}</p>`;
+                    return;
+                }
+
+                const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+                const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
+                const currentTime = new Date().toLocaleTimeString();
+                
+                document.getElementById("weather").innerHTML = `
+                    <h3>${data.name}, ${data.sys.country}</h3>
+                    <p>Temperature: ${data.main.temp}°C</p>
+                    <p>Weather: ${data.weather[0].description}</p>
+                    <p>Humidity: ${data.main.humidity}%</p>
+                    <p>Wind Speed: ${data.wind.speed} m/s</p>
+                    <p>Pressure: ${data.main.pressure} hPa</p>
+                    <p>Visibility: ${data.visibility / 1000} km</p>
+                    <p>Sunrise: ${sunrise}</p>
+                    <p>Sunset: ${sunset}</p>
+                    <p>Local Time: ${currentTime}</p>
+                    <p>Coordinates: ${data.coord.lat}, ${data.coord.lon}</p>
+                    <p>Location: <a href="https://www.google.com/maps/search/?api=1&query=${data.coord.lat},${data.coord.lon}" target="_blank">View on Map</a></p>
+                `;
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+            }
+        }
+    </script>
+
+</body>
+</html>
